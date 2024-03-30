@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include <stdlib.h>
+#include <time.h>
+#include <random>
 
 void rotate_right(std::string& notes);
 void rotate_left(std::string& notes);
@@ -7,13 +10,36 @@ void rotate_left(std::string& notes);
 std::string generate_chord(const char note, const std::string& type);
 std::string convert_notes(const std::string& notes);
 
+void generate_staff(std::string& notes, int position);
+
 // h - l are sharps
 static std::string notes_dictionary = "ahbcidjefkgl";
 
 int main() {
-    char note = 'h';
+    srand(time(0));
+    std::string notes = "";
     try {
-        std::cout << convert_notes(generate_chord(note, "minor"));
+        for (int i = 0 ; i < 4; i++) {
+            std::string type = "";
+            if (rand() % 5 == 0) {
+                type = "power";
+            }
+            else if (rand() % 5 == 1) {
+                type = "major";
+            }
+            else if (rand() % 5 == 2) {
+                type = "minor";
+            }
+            else if (rand() % 5 == 3) {
+                type = "augmented";
+            }
+            else if (rand() % 5 == 3) {
+                type = "diminished";
+            }
+            char note = 'a' + (rand() % 12);
+            notes += generate_chord(note, "minor");
+        }
+        generate_staff(notes, rand() % 6);
     }
     catch (std::string error) {
         std::cout << error << std::endl;
@@ -59,7 +85,6 @@ std::string generate_chord(const char note, const std::string& type) {
         throw std::string("generate_chord: Invalid type");
     }
     else if (type == "power") { // index 0 and index 7
-        std::cout << "power chord" << std::endl;
         // make dictionary first note = first note
         int i = 0;
         while(note != notes_dictionary[0]) {
@@ -70,11 +95,10 @@ std::string generate_chord(const char note, const std::string& type) {
             rotate_right(notes_dictionary);
             i++;
         }
-        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[7]);
+        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[7]) + std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[7]);
         return chord;
     }
     else if (type == "major") {
-        std::cout << "major chord" << std::endl;
         // make dictionary first note = first note
         int i = 0;
         while(note != notes_dictionary[0]) {
@@ -85,11 +109,10 @@ std::string generate_chord(const char note, const std::string& type) {
             rotate_right(notes_dictionary);
             i++;
         }
-        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[4]) + std::string(1, notes_dictionary[7]);
+        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[4]) + std::string(1, notes_dictionary[7]) + std::string(1, notes_dictionary[11]);
         return chord;
     }
     else if (type == "minor") {
-        std::cout << "minor chord" << std::endl;
         // make dictionary first note = first note
         int i = 0;
         while(note != notes_dictionary[0]) {
@@ -100,11 +123,10 @@ std::string generate_chord(const char note, const std::string& type) {
             rotate_right(notes_dictionary);
             i++;
         }
-        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[3]) + std::string(1, notes_dictionary[7]);
+        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[3]) + std::string(1, notes_dictionary[7]) + std::string(1, notes_dictionary[10]);
         return chord;
     }
     else if (type == "diminished") {
-        std::cout << "diminished chord" << std::endl;
         // make dictionary first note = first note
         int i = 0;
         while(note != notes_dictionary[0]) {
@@ -115,11 +137,10 @@ std::string generate_chord(const char note, const std::string& type) {
             rotate_right(notes_dictionary);
             i++;
         }
-        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[3]) + std::string(1, notes_dictionary[6]);
+        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[3]) + std::string(1, notes_dictionary[6]) + std::string(1, notes_dictionary[10]);
         return chord;
     }
     else if (type == "augmented") {
-        std::cout << "augmented chord" << std::endl;
         // make dictionary first note = first note
         int i = 0;
         while(note != notes_dictionary[0]) {
@@ -130,10 +151,10 @@ std::string generate_chord(const char note, const std::string& type) {
             rotate_right(notes_dictionary);
             i++;
         }
-        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[4]) + std::string(1, notes_dictionary[8]);
+        std::string chord = std::string(1, notes_dictionary[0]) + std::string(1, notes_dictionary[4]) + std::string(1, notes_dictionary[8]) + std::string(1, notes_dictionary[11]);
         return chord;
     }
-    return std::string("filler");
+    return std::string("gl");
 }
 std::string convert_notes(const std::string& notes) {
     std::string new_notes = "";
@@ -163,9 +184,528 @@ std::string convert_notes(const std::string& notes) {
 }
 // localize a staff to focus on a single string for guitar\
 each string takes up 8 notes from octave to octave\
-low  e string starts at "position 0"  - "position 7"\
-     a string starts at "position 3"  - "position 10"\
-     d string starts at "position 6"  - "position 13"\
-     g string starts at "position 9"  - "position 16" \
-     b string starts at "position 11" - "position 18"\
-high e string starts at "position 14" - "position 21" 
+low  e string starts at "position 0"  - "position 7"  0\
+     a string starts at "position 3"  - "position 10" 1\
+     d string starts at "position 6"  - "position 13" 2\
+     g string starts at "position 9"  - "position 16" 3\
+     b string starts at "position 11" - "position 18" 4\
+high e string starts at "position 14" - "position 21" 5
+void generate_staff(std::string& notes, int position) {
+    int *note_location = new int[notes.size()];
+    int *sharp_location = new int[notes.size()];
+    for (int i = 0; i < notes.size(); i++) {
+        switch(notes[i]) {
+            case('a'):
+                switch(position) {
+                    case(0):
+                        note_location[i] = 4;
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 4;
+                        }
+                        else {
+                            note_location[i] = 11;
+                        }
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        note_location[i] = 11;
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        note_location[i] = 11;
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        note_location[i] = 18;
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        note_location[i] = 18;
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('h'): // a#/Bb
+                switch(position) {
+                    case(0):
+                        note_location[i] = 4;
+                        sharp_location[i] = 4;
+                    break;
+                    case(1):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 4;
+                            sharp_location[i] = 4;
+                        }
+                        else {
+                            note_location[i] = 11;
+                            sharp_location[i] = 11;
+                        }
+                    break;
+                    case(2):
+                        note_location[i] = 11;
+                        sharp_location[i] = 11;
+                    break;
+                    case(3):
+                        note_location[i] = 11;
+                        sharp_location[i] = 11;
+                    break;
+                    case(4):
+                        note_location[i] = 18;
+                        sharp_location[i] = 18;
+                    break;
+                    case(5):
+                        note_location[i] = 18;
+                        sharp_location[i] = 18;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('b'):
+                switch(position) {
+                    case(0):
+                        note_location[i] = 5;
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        note_location[i] = 5;
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        note_location[i] = 12;
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        note_location[i] = 12;
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 12;
+                        }
+                        else {
+                            note_location[i] = 19;
+                        }
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        note_location[i] = 19;
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('c'):
+                switch(position) {
+                    case(0):
+                        note_location[i] = 6;
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        note_location[i] = 6;
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        note_location[i] = 13;
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        note_location[i] = 13;
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        note_location[i] = 13;
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        note_location[i] = 20;
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('i'): // c#/Db
+                switch(position) {
+                    case(0):
+                        note_location[i] = 6;
+                        sharp_location[i] = 6;
+                    break;
+                    case(1):
+                        note_location[i] = 6;
+                        sharp_location[i] = 6;
+                    break;
+                    case(2):
+                        note_location[i] = 13;
+                        sharp_location[i] = 13;
+                    break;
+                    case(3):
+                        note_location[i] = 13;
+                        sharp_location[i] = 13;
+                    break;
+                    case(4):
+                        note_location[i] = 13;
+                        sharp_location[i] = 13;
+                    break;
+                    case(5):
+                        note_location[i] = 20;
+                        sharp_location[i] = 20;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('d'):
+                switch(position) {
+                    case(0):
+                        note_location[i] = 7;
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        note_location[i] = 7;
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 7;
+                        }
+                        else {
+                            note_location[i] = 14;
+                        }
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        note_location[i] = 14;
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        note_location[i] = 14;
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        note_location[i] = 21;
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('j'): // d#/Eb
+                switch(position) {
+                    case(0):
+                        note_location[i] = 7;
+                        sharp_location[i] = 7;
+                    break;
+                    case(1):
+                        note_location[i] = 7;
+                        sharp_location[i] = 7;
+                    break;
+                    case(2):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 7;
+                            sharp_location[i] = 7;
+                        }
+                        else {
+                            note_location[i] = 14;
+                            sharp_location[i] = 14;
+                        }
+                    break;
+                    case(3):
+                        note_location[i] = 14;
+                        sharp_location[i] = 14;
+                    break;
+                    case(4):
+                        note_location[i] = 14;
+                        sharp_location[i] = 14;
+                    break;
+                    case(5):
+                        note_location[i] = 21;
+                        sharp_location[i] = 21;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('e'):
+                switch(position) {
+                    case(0):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 8;
+                        }
+                        else {
+                            note_location[i] = 1;
+                        }
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        note_location[i] = 8;
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        note_location[i] = 8;
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        note_location[i] = 15;
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        note_location[i] = 15;
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 15;
+                        }
+                        else {
+                            note_location[i] = 22;
+                        }
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('f'):
+                switch(position) {
+                    case(0):
+                        note_location[i] = 2;
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        note_location[i] = 9;
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        note_location[i] = 9;
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        note_location[i] = 16;
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        note_location[i] = 16;
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        note_location[i] = 16;
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('k'): // f#/Gb
+                switch(position) {
+                    case(0):
+                        note_location[i] = 2;
+                        sharp_location[i] = 2;
+                    break;
+                    case(1):
+                        note_location[i] = 9;
+                        sharp_location[i] = 9;
+                    break;
+                    case(2):
+                        note_location[i] = 9;
+                        sharp_location[i] = 9;
+                    break;
+                    case(3):
+                        note_location[i] = 16;
+                        sharp_location[i] = 16;
+                    break;
+                    case(4):
+                        note_location[i] = 16;
+                        sharp_location[i] = 16;
+                    break;
+                    case(5):
+                        note_location[i] = 16;
+                        sharp_location[i] = 16;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('g'):
+                switch(position) {
+                    case(0):
+                        note_location[i] = 3;
+                        sharp_location[i] = -1;
+                    break;
+                    case(1):
+                        note_location[i] = 10;
+                        sharp_location[i] = -1;
+                    break;
+                    case(2):
+                        note_location[i] = 10;
+                        sharp_location[i] = -1;
+                    break;
+                    case(3):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 10;
+                        }
+                        else {
+                            note_location[i] = 17;
+                        }
+                        sharp_location[i] = -1;
+                    break;
+                    case(4):
+                        note_location[i] = 17;
+                        sharp_location[i] = -1;
+                    break;
+                    case(5):
+                        note_location[i] = 17;
+                        sharp_location[i] = -1;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            case('l'): // g#/Ab
+                switch(position) {
+                    case(0):
+                        note_location[i] = 3;
+                        sharp_location[i] = 3;
+                    break;
+                    case(1):
+                        note_location[i] = 10;
+                        sharp_location[i] = 10;
+                    break;
+                    case(2):
+                        note_location[i] = 10;
+                        sharp_location[i] = 10;
+                    break;
+                    case(3):
+                        if (rand() % 2 == 0) {
+                            note_location[i] = 10;
+                            sharp_location[i] = 10;
+                        }
+                        else {
+                            note_location[i] = 17;
+                            sharp_location[i] = 17;
+                        }
+                    break;
+                    case(4):
+                        note_location[i] = 17;
+                        sharp_location[i] = 17;
+                    break;
+                    case(5):
+                        note_location[i] = 17;
+                        sharp_location[i] = 17;
+                    break;
+                    default:
+                        throw std::string("generate_staff: wrong position");
+                    break;
+                }
+            break;
+            default:
+                throw std::string("generate_staff: invalid note");
+            break;
+        }
+    }
+    int level = 21;
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < notes.size(); j++) {
+            if (j % 4 == 0 && level) {
+                std::cout << "||";
+            }
+            if (level % 2 == 0 && note_location[j] < level && level >=  8 && level <= 16) {
+                std::cout << "===";
+            }
+            else if (level % 2 == 1 && note_location[j] < level && level >= 8){
+                std::cout << "   ";
+            }
+            else if (level == note_location[j] && sharp_location[j] == note_location[j] && level % 2 == 1) {
+                if (notes[j] == 'k') {
+                    std::cout << "f# ";
+                }
+                else if (notes[j] == 'h') {
+                    std::cout << "a# ";
+                }
+                else if (notes[j] == 'l') {
+                    std::cout << "g# ";
+                }
+                else if (notes[j] == 'i') {
+                    std::cout << "c# ";
+                }
+                else if (notes[j] == 'j') {
+                    std::cout << "d# ";
+                }
+            }
+            else if (level == note_location[j] && sharp_location[j] == note_location[j] && level % 2 == 0 && level >= 8 && level <= 16) {
+                if (notes[j] == 'k') {
+                    std::cout << "f#=";
+                }
+                else if (notes[j] == 'h') {
+                    std::cout << "a#=";
+                }
+                else if (notes[j] == 'l') {
+                    std::cout << "g#=";
+                }
+                else if (notes[j] == 'i') {
+                    std::cout << "c#=";
+                }
+                else if (notes[j] == 'j') {
+                    std::cout << "d#=";
+                }
+            }
+            else if (level == note_location[j] && sharp_location[j] == note_location[j] && level % 2 == 0) {
+                if (notes[j] == 'k') {
+                    std::cout << "f#-";
+                }
+                else if (notes[j] == 'h') {
+                    std::cout << "a#-";
+                }
+                else if (notes[j] == 'l') {
+                    std::cout << "g#-";
+                }
+                else if (notes[j] == 'i') {
+                    std::cout << "c#-";
+                }
+                else if (notes[j] == 'j') {
+                    std::cout << "d#-";
+                }
+            }
+            else if (level == note_location[j] && level % 2 == 1){
+                std::cout << notes[j] << "  ";
+            }
+            else if (level == note_location[j] && level % 2 == 0 && level >= 8 && level <= 16){
+                std::cout << notes[j] << "==";
+            }
+            else if (level == note_location[j] && level % 2 == 0){
+                std::cout << notes[j] << "--";
+            }
+            else if (level % 2 == 0 && level >= 8 && level <= 16)  {
+                std::cout << "===";
+            }
+            else if (level % 2 == 0) {
+                std::cout << "---";
+            }
+            else {
+                std::cout << "   ";
+            }
+        }
+        level--;
+        std::cout << std::endl;
+    }
+    delete [] note_location;
+    delete [] sharp_location;
+}
+
